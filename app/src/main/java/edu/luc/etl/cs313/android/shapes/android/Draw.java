@@ -63,26 +63,32 @@ public class Draw implements Visitor<Void> {
 
     @Override
     public Void onLocation(final Location l) {
-
+        canvas.save();  // make sure we have the default canvas saved
+        canvas.translate(l.getX(), l.getY());   // move to the designated location
+        l.getShape().accept(this);      // run the visitor to run in the correct shape method
+        canvas.restore(); // go back to the default
         return null;
     }
 
     @Override
     public Void onRectangle(final Rectangle r) {
-
+        canvas.drawRect(0,0,r.getWidth(),r.getHeight(), paint);
         return null;
     }
 
     @Override
     public Void onOutline(Outline o) {
-
+        // similar to Fill, but we don't fill, we outline so we need Stroke
+        paint.setStyle(Style.STROKE);
+        o.getShape().accept(this);
         return null;
     }
 
     @Override
-    public Void onPolygon(final Polygon s) {
-
+    public Void onPolygon(final Polygon s) { // Polygon extends Group, so it should be similar
+        // to the onGroup method used here
         final float[] pts = null;
+
 
         canvas.drawLines(pts, paint);
         return null;
