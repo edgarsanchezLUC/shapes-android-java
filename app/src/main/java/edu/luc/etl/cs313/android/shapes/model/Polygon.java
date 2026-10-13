@@ -9,7 +9,7 @@ import java.util.List;
 public final class Polygon extends Group {
 
     public Polygon(final Point... points) {
-        super(points);
+        super(points); // this connects to Group(Shape... shape)
     }
 
     @SuppressWarnings("unchecked")
