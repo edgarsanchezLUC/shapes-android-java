@@ -42,9 +42,13 @@ public class Draw implements Visitor<Void> {
 
     @Override
     public Void onFill(final Fill f) { // when using the fill method
+        // we'll retain the old paint color
+        final int defaultColor = paint.getColor();
         paint.setStyle(Style.FILL);   // set the style to fill
         f.getShape().accept(this);  // grab the shape that we want to fill and use visitor
-        return null;                // to complete using the accept method
+        // now that the rest is completely used, we set the color back to default
+        paint.setColor(defaultColor);
+        return null;    // to complete using the accept method
     }
 
     @Override
