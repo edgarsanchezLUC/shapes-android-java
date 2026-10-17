@@ -87,10 +87,9 @@ public class Draw implements Visitor<Void> {
     @Override
     public Void onPolygon(final Polygon s) { // Polygon extends Group, so it should be similar
         // to the onGroup method used here
-        final float[] pts = null;
-
-
-        canvas.drawLines(pts, paint);
+        for (final Shape shape : s.getShapes()) {
+            shape.accept(this);
+        }
         return null;
     }
 }
