@@ -31,7 +31,7 @@ public class Draw implements Visitor<Void> {
 
     @Override
     public Void onStrokeColor(final StrokeColor c) { // when using the StrokeColor method
-        final int defaultColor = c.getColor();
+        final int defaultColor = paint.getColor();
         paint.setColor(c.getColor());   // set color to the color of c
         c.getShape().accept(this);      // c has a shape variable, so we should probably use it
         // that also runs the method according to the correct shape
@@ -44,9 +44,12 @@ public class Draw implements Visitor<Void> {
     public Void onFill(final Fill f) { // when using the fill method
         // we'll retain the old paint color
         final int defaultColor = paint.getColor();
+        final Style defaultStyle = paint.getStyle();
         paint.setStyle(Style.FILL);   // set the style to fill
         f.getShape().accept(this);  // grab the shape that we want to fill and use visitor
         // now that the rest is completely used, we set the color back to default
+
+        paint.setStyle(defaultStyle);
         paint.setColor(defaultColor);
         return null;    // to complete using the accept method
     }
@@ -63,10 +66,9 @@ public class Draw implements Visitor<Void> {
 
     @Override
     public Void onLocation(final Location l) {
-        canvas.save();  // make sure we have the default canvas saved
         canvas.translate(l.getX(), l.getY());   // move to the designated location
         l.getShape().accept(this);      // run the visitor to run in the correct shape method
-        canvas.restore(); // go back to the default
+        canvas.translate(-l.getX(), -l.getY());
         return null;
     }
 
@@ -79,17 +81,30 @@ public class Draw implements Visitor<Void> {
     @Override
     public Void onOutline(Outline o) {
         // similar to Fill, but we don't fill, we outline so we need Stroke
+        final Style defaultStyle = paint.getStyle();
         paint.setStyle(Style.STROKE);
         o.getShape().accept(this);
+        paint.setStyle(defaultStyle);
         return null;
     }
 
     @Override
     public Void onPolygon(final Polygon s) { // Polygon extends Group, so it should be similar
         // to the onGroup method used here
-        for (final Shape shape : s.getShapes()) {
-            shape.accept(this);
+        final java.util.List<? extends Point> points = s.getPoints();
+        final int size = points.size();
+        final float[] pts = new float[size * 4];
+
+        for (int i = 0; i < size; i++) {
+            final Point p1 = points.get(i);
+            final Point p2 = points.get((i + 1) % size); // Connects last point back to the first
+            pts[4 * i] = p1.getX();
+            pts[4 * i + 1] = p1.getY();
+            pts[4 * i + 2] = p2.getX();
+            pts[4 * i + 3] = p2.getY();
         }
+
+        canvas.drawLines(pts, paint);
         return null;
     }
 }
